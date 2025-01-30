@@ -3,8 +3,12 @@ const clientService = require("../services/clientService");
 exports.getClientsByFolder = async (req, res) => {
   try {
     const { folder } = req.params;
+    const { lastClientId } = req.query;
 
-    const clients = await clientService.getClientsByFolder({ folder });
+    const clients = await clientService.getClientsByFolder({
+      folder,
+      lastClientId,
+    });
 
     if (!clients) {
       return res
@@ -46,6 +50,37 @@ exports.updateClientFolder = async (req, res) => {
     const client = await clientService.updateClientFolder(clientId, folder);
 
     return res.status(200).json({ message: "Client folder updated", client });
+  } catch (error) {
+    console.error("Error updating client folder: ", error.message || error);
+    return res
+      .status(400)
+      .json({ error: error.message || "Internal Server Error" });
+  }
+};
+
+exports.updateClientsFolder = async (req, res) => {
+  try {
+    const { clientIds, folder } = req.body;
+
+    if (!clientIds || !Array.isArray(clientIds) || clientIds.length === 0) {
+      return res
+        .status(400)
+        .json({ error: "clientIds must be a non-empty array" });
+    }
+
+    if (!folder) {
+      return res.status(400).json({ error: "Folder code is required" });
+    }
+
+    const updatedClients = await clientService.updateClientsFolder(
+      clientIds,
+      folder
+    );
+
+    return res.status(200).json({
+      message: "Clients updated successfully",
+      updatedCount: updatedClients.modifiedCount,
+    });
   } catch (error) {
     console.error("Error updating client folder: ", error.message || error);
     return res

@@ -14,7 +14,9 @@ exports.getClientsByFolder = async ({
   let lastClientLastMessageCreatedAt = null;
 
   if (lastClientId) {
-    const lastClient = await Client.findById(lastClientId).lean();
+    const lastClient = await Client.findOne({
+      instagram_id: lastClientId,
+    }).lean();
     if (!lastClient) {
       throw new Error("Invalid lastClientId.");
     }
@@ -32,7 +34,7 @@ exports.getClientsByFolder = async ({
   const clients = await Client.find(filter)
     .sort({ "lastMessage.createdAt": -1, _id: -1 })
     .limit(limit)
-    .lean(); // `.lean()` улучшает производительность, если данные не модифицируются
+    .lean();
 
   return clients;
 };
@@ -70,6 +72,36 @@ exports.updateClientFolder = async (clientId, folderCode) => {
   }
 
   return client;
+};
+
+exports.updateClientsFolder = async (clientIds, folderCode) => {
+  if (!clientIds || !folderCode) {
+    throw new Error("Client ID and folder name are required");
+  }
+
+  const folder = await Folder.findOne({ code: folderCode });
+  if (!folder) {
+    throw new Error(`Folder "${folder}" does not exist`);
+  }
+
+  const updatedClients = await Client.updateMany(
+    { instagram_id: { $in: clientIds } },
+    { folder: folderCode }
+  );
+
+  if (updatedClients.matchedCount === 0) {
+    throw new Error("No matching clients found");
+  }
+
+  clientIds.forEach((clientId) => {
+    notifyNewMessage(
+      null,
+      { instagram_id: clientId, folder: folderCode },
+      "clientUpdate"
+    );
+  });
+
+  return updatedClients;
 };
 
 exports.updateClientTag = async (clientId, tag) => {
