@@ -1,5 +1,5 @@
 const axios = require("axios");
-const Message = require("../models/Message"); // Импорт модели Message
+const Message = require("../models/Message");
 const Client = require("../models/Client");
 
 exports.sendMessage = async ({
@@ -19,16 +19,16 @@ exports.sendMessage = async ({
         },
         message: messageText
           ? {
-              text: messageText,
-            }
+            text: messageText,
+          }
           : {
-              attachment: {
-                type: "image",
-                payload: {
-                  url: attachmentUrl,
-                },
+            attachment: {
+              type: "image",
+              payload: {
+                url: attachmentUrl,
               },
             },
+          },
       },
       {
         headers: {
@@ -38,7 +38,7 @@ exports.sendMessage = async ({
       }
     );
 
-    return response.data;
+    return { ...response.data, content: messageText }
   } catch (error) {
     console.error("Error sending message: ", error.response?.data || error);
     throw new Error("Failed to send message");
