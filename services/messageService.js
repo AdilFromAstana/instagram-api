@@ -2,6 +2,12 @@ const axios = require("axios");
 const Message = require("../models/Message");
 const Client = require("../models/Client");
 
+const errorsObject = {
+  2534022: "Пользователь не отвечал 24 часа!",
+  2534038: "Длина сообщения превышает 1 000 символов!",
+  2534080: "Формат вложения не поддерживается!",
+};
+
 exports.sendMessage = async ({
   recipientId,
   messageText,
@@ -19,16 +25,16 @@ exports.sendMessage = async ({
         },
         message: messageText
           ? {
-            text: messageText,
-          }
+              text: messageText,
+            }
           : {
-            attachment: {
-              type: "image",
-              payload: {
-                url: attachmentUrl,
+              attachment: {
+                type: "image",
+                payload: {
+                  url: attachmentUrl,
+                },
               },
             },
-          },
       },
       {
         headers: {
@@ -38,10 +44,14 @@ exports.sendMessage = async ({
       }
     );
 
-    return { ...response.data, content: messageText }
+    return { ...response.data, content: messageText };
   } catch (error) {
-    console.error("Error sending message: ", error.response?.data || error);
-    throw new Error("Failed to send message");
+    const errorCode = error?.response?.data?.error?.error_subcode;
+    const errorMessage = errorCode
+      ? errorsObject[errorCode]
+      : "Неизвестная ошибка отправки сообщения!";
+    console.error(errorMessage);
+    throw new Error(errorMessage);
   }
 };
 
