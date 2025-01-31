@@ -105,7 +105,7 @@ exports.updateClientsFolder = async (clientIds, folderCode) => {
 };
 
 exports.updateClientTag = async (clientId, tag) => {
-  if (!clientId || !tag) {
+  if (!clientId) {
     throw new Error("Client ID and tag are required");
   }
 
