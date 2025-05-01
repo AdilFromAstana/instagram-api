@@ -93,7 +93,7 @@ exports.callback = async (req, res) => {
   
               // Перенаправление через 3 секунды
               setTimeout(() => {
-                window.location.href = 'https://www.melek-crm.kz'; // Замените на ваш URL
+                window.location.href = 'http://localhost:3000'; // Замените на ваш URL
               }, 3000);
             </script>
           </head>

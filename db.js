@@ -17,6 +17,7 @@ const connectDB = async () => {
       .map((details) => details.address);
 
     console.log("Attempting to connect from the following IPs:", ipAddresses);
+    console.log("process.env.MONGO_URI:", process.env.MONGO_URI);
 
     await mongoose.connect(process.env.MONGO_URI);
 

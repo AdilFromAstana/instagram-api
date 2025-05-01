@@ -21,6 +21,7 @@ async function retryCreateMessage(newMessage, retries = 3) {
 }
 
 exports.processWebhookEvent = async (body) => {
+  console.log(body)
   if (body.object !== "instagram") {
     throw new Error("Unsupported webhook object type");
   }
